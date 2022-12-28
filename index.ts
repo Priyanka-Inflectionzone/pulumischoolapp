@@ -19,7 +19,7 @@ const subnet2 = aws.ec2.Subnet.get("aws-default-subnet-2","subnet-0045cc147b1543
 const subnet3 = aws.ec2.Subnet.get("aws-default-subnet-3","subnet-0284d6538812c701d" );
 
 const cluster = new aws.ecs.Cluster("cluster1", {settings: [{
-    name: "cluster",
+    name: "containerInsights",
     value: "enabled",
 }]});
 
@@ -31,7 +31,7 @@ const subnetGroup = new aws.rds.SubnetGroup("default", {
     },
 });
 // Create a new database, using the subnet and cluster groups.
-const db = new aws.rds.Instance("db", {
+const db = new aws.rds.Instance("schooldb", {
     engine: "mysql",
     instanceClass: aws.rds.InstanceTypes.T2_Micro,
     allocatedStorage: 5,
@@ -53,21 +53,24 @@ const service = new awsx.ecs.FargateService("service", {
     cluster : cluster.arn,
     assignPublicIp: true,
     desiredCount: 1,
+    forceNewDeployment: true,
     taskDefinitionArgs: {
-        containers: {
-            service: {
+        container: {
                 image: "623865992637.dkr.ecr.ap-south-1.amazonaws.com/school-app:latest",
                 portMappings: [
                   { containerPort: 3000 }
                 ],
                 environment: [
-                    { name: "DATABASE_URL", value: connectionString },
-                    { name: "DB_USERNAME", value: dbUsername },
-                    { name: "DB_PASSWORD", value: dbPassword },
-                    { name: "ADMIN_USERNAME", value: adminUsername },
-                    { name: "ADMIN_PASSWORD", value: adminPassword },
-                ]
+                    { name: "DB_HOST", value: "schooldbb108010.cvcmgo9c9own.ap-south-1.rds.amazonaws.com" },
+                    { name: "DB_PORT", value: "3306"},
+                    { name: "DB_USER_NAME", value: dbUsername },
+                    { name: "DB_USER_PASSWORD", value: dbPassword },
+                    { name: "DB_NAME", value: dbName}
+,
+                ],
+                memory : 2048,
+                cpu : 1 
             }
         }
     }
-});
+);
