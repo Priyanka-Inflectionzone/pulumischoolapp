@@ -1,0 +1,9 @@
+config:
+  aws:region: ap-south-1
+  pulumischoolapp:admin_password:
+    secure: AAABAB4jsIzEw0CfDn+hSOunpOcyNMpk7VO5aYelTyowX3X9aDRTUA==
+  pulumischoolapp:admin_username: admin
+  pulumischoolapp:db_name: schooldb
+  pulumischoolapp:db_password:
+    secure: AAABANc41JWdpYtbLHLGsdcLrfiEI20XAw1VIGtQ/XFU0gJb+G5zxA==
+  pulumischoolapp:db_username: mysqluser
