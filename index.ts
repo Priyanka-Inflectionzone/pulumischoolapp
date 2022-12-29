@@ -1,6 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
+import { output } from "@pulumi/aws/types";
 
 
 // Import our Pulumi configuration.
@@ -44,11 +45,10 @@ const db = new aws.rds.Instance("schooldb", {
 });
 
 // Assemble a connection string for the school service.
-const connectionString = pulumi.interpolate `mysql://${dbUsername}:${dbPassword}@${db.endpoint}:3306/schooldb`;
+const connectionString = pulumi.interpolate `mysql://${dbUsername}:${dbPassword}@${db.endpoint}/schooldb`;
 
 // Create an NetworkListener to forward HTTP traffic on port 3000.
 //const listener = new aws.lb.Listener("lb", { port: 3000 });
-
 const service = new awsx.ecs.FargateService("service", {
     cluster : cluster.arn,
     assignPublicIp: true,
@@ -61,11 +61,12 @@ const service = new awsx.ecs.FargateService("service", {
                   { containerPort: 3000 }
                 ],
                 environment: [
-                    { name: "DB_HOST", value: "schooldbb108010.cvcmgo9c9own.ap-south-1.rds.amazonaws.com" },
+                    { name: "DB_HOST", value: db.address },
                     { name: "DB_PORT", value: "3306"},
                     { name: "DB_USER_NAME", value: dbUsername },
                     { name: "DB_USER_PASSWORD", value: dbPassword },
-                    { name: "DB_NAME", value: dbName}
+                    { name: "DB_NAME", value: dbName},
+                    { name: "DB_URL", value: connectionString}
 ,
                 ],
                 memory : 2048,
